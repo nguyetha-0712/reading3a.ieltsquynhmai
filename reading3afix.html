@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="vi" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Từ Mới Reading 3A</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+*{font-family:'Be Vietnam Pro',sans-serif;box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0}
+:root{--bg:#A8DADC;--white:#FFFFFF;--pink:#FFAFCC;--dark:#1a2a3a;--accent:#457B9D;--success:#2ecc71;--error:#e74c3c}
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card-hover{transition:transform .2s,box-shadow .2s}
+.card-hover:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.12)}
+.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px 28px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary:hover{filter:brightness(1.1);transform:scale(1.03)}
+.btn-pink{background:var(--pink);color:var(--dark);border:none;border-radius:12px;padding:12px 28px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-pink:hover{filter:brightness(.95);transform:scale(1.03)}
+.progress-bar{height:8px;background:#e0e0e0;border-radius:9999px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--pink));border-radius:9999px;transition:width .5s ease}
+.option-btn{border:2px solid #ddd;border-radius:12px;padding:14px 18px;cursor:pointer;transition:all .2s;background:#fff;text-align:left;width:100%;font-size:15px}
+.option-btn:hover{border-color:var(--accent);background:#f0f8ff}
+.option-btn.correct{border-color:var(--success);background:#d4edda;animation:pulse .4s}
+.option-btn.wrong{border-color:var(--error);background:#f8d7da}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+.confetti{position:fixed;pointer-events:none;z-index:9999}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.input-field{border:2px solid #ddd;border-radius:12px;padding:12px 16px;font-size:16px;width:100%;transition:border-color .2s;outline:none}
+.input-field:focus{border-color:var(--accent)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:12px;color:#fff;font-weight:600;z-index:9999;animation:toastIn .4s ease}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.vocab-card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;border-left:4px solid var(--accent)}
+.section-tag{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.match-item{border:2px solid #ddd;border-radius:10px;padding:10px 14px;cursor:pointer;transition:all .2s;background:#fff;font-size:14px}
+.match-item.selected{border-color:var(--accent);background:#e8f4f8}
+.match-item.matched{border-color:var(--success);background:#d4edda;pointer-events:none}
+.match-item.wrong-match{border-color:var(--error);background:#f8d7da}
+.loading-screen{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:100%;background:linear-gradient(135deg,#A8DADC 0%,#e8f4f8 50%,#FFAFCC33 100%)}
+.spinner{width:40px;height:40px;border:3px solid #e0e0e0;border-top:3px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full" style="background:linear-gradient(135deg,#A8DADC 0%,#e8f4f8 50%,#FFAFCC33 100%)">
+  <div id="app" class="h-full w-full overflow-auto"></div>
+  <script>
+console.log("✅ Game initialized - Từ Mới Reading 3A");
+
+const defaultConfig = {
+  app_title: 'TỪ MỚI READING 3A',
+  background_color: '#A8DADC',
+  surface_color: '#FFFFFF',
+  text_color: '#1a2a3a',
+  primary_action_color: '#457B9D',
+  secondary_action_color: '#FFAFCC'
+};
+
+let config = { ...defaultConfig };
+
+// ===== VOCABULARY DATABASE =====
+const VOCAB = [
+  {id:1,en:'brain drain',alt:'human capital flight',ipa:'/ˈbreɪn dreɪn/',pos:'n',vi:'Chảy máu chất xám',enDef:'The emigration of highly trained or qualified people from a country',collocations:['brain drain from developing countries','brain drain issue','reverse brain drain','suffer from brain drain'],collocationVi:['chảy máu chất xám từ các nước đang phát triển','vấn đề chảy máu chất xám','đảo ngược chảy máu chất xám','chịu ảnh hưởng từ chảy máu chất xám'],synonyms:['talent outflow','skilled migration','human capital flight'],synonymsVi:['tư bản nhân lực rò rỉ','di cư kỹ năng cao','rò rỉ tư bản nhân lực'],antonyms:['talent retention','brain gain'],antonymsVi:['giữ chân tài năng','tăng tư bản nhân lực'],wordFamily:['drain (v)','drainage (n)','draining (adj)'],wordFamilyVi:['rút, trích (động từ)','sự rút, sự trích (danh từ)','rút, trích (tính từ)'],example:'"Brain drain can severely hinder economic growth in developing nations."',exampleVi:'"Chảy máu chất xám có thể cản trở đáng kể sự phát triển kinh tế ở các nước đang phát triển."'},
+  {id:2,en:'higher education',alt:'tertiary education / post-secondary education',ipa:'/ˌhaɪər ˌedʒuˈkeɪʃən/',pos:'n',vi:'Giáo dục đại học',enDef:'Education at university or college level',collocations:['access to higher education','higher education institution','pursue higher education'],collocationVi:['tiếp cận giáo dục đại học','cơ sở giáo dục đại học','theo đuổi giáo dục đại học'],synonyms:['tertiary education','post-secondary education','university education'],synonymsVi:['giáo dục bậc ba','giáo dục sau trung học phổ thông','giáo dục đại học'],antonyms:['primary education','basic education'],antonymsVi:['giáo dục tiểu học','giáo dục cơ bản'],wordFamily:['educate (v)','educator (n)','educational (adj)'],wordFamilyVi:['giáo dục (động từ)','nhà giáo dục (danh từ)','có tính giáo dục (tính từ)'],example:'"Access to higher education should not be limited by socioeconomic status."',exampleVi:'"Tiếp cận giáo dục đại học không nên bị giới hạn bởi địa vị kinh tế xã hội."'},
+  {id:3,en:'hinder',ipa:'/ˈhɪndər/',pos:'v',vi:'Làm trì trệ sự phát triển của',enDef:'To make it difficult for something to develop or progress',collocations:['hinder the growth of','hinder the development of','hinder progress','hinder economic recovery'],collocationVi:['cản trở sự tăng trưởng','cản trở sự phát triển','cản trở tiến bộ','cản trở phục hồi kinh tế'],synonyms:['impede','hamper','obstruct','inhibit'],synonymsVi:['cản trở','làm chậm','chặn lại','ngăn chặn'],antonyms:['facilitate','promote','encourage','foster'],antonymsVi:['tạo điều kiện','khuyến khích','thúc đẩy','nuôi dưỡng'],wordFamily:['hindrance (n)','hindering (adj)'],wordFamilyVi:['trở ngại (danh từ)','cản trở (tính từ)'],example:'"Lack of funding may hinder progress in scientific research."',exampleVi:'"Thiếu kinh phí có thể cản trở tiến bộ trong nghiên cứu khoa học."',usage:'hinder the growth/development/progress of N'},
+  {id:4,en:'retain',ipa:'/rɪˈteɪn/',pos:'v',vi:'Giữ lại',enDef:'To keep something or continue to have something',collocations:['retain employees','retain talent','retain control','retain information'],collocationVi:['giữ lại nhân viên','giữ lại tài năng','giữ quyền kiểm soát','lưu giữ thông tin'],synonyms:['keep','maintain','preserve','hold onto'],synonymsVi:['giữ','duy trì','bảo tồn','nắm giữ'],antonyms:['lose','release','relinquish'],antonymsVi:['mất','thả rỏi','từ bỏ'],wordFamily:['retention (n)','retentive (adj)'],wordFamilyVi:['giữ lại (danh từ)','có khả năng giữ lại (tính từ)'],example:'"Companies must offer competitive salaries to retain skilled workers."',exampleVi:'"Các công ty phải trả lương cạnh tranh để giữ lại những công nhân kỹ năng cao."'},
+  {id:5,en:'employee retention program',ipa:'/ɪmˈplɔɪiː rɪˈtenʃən ˈproʊɡræm/',pos:'n',vi:'Chính sách giữ lại nhân viên',enDef:'A program designed to keep employees from leaving an organization',collocations:['implement an employee retention program','effective retention program','retention strategy'],collocationVi:['triển khai chương trình giữ lại nhân viên','chương trình giữ lại hiệu quả','chiến lược giữ lại'],synonyms:['staff retention scheme','talent retention policy'],synonymsVi:['kế hoạch giữ lại nhân viên','chính sách giữ lại tài năng'],antonyms:['layoff program','downsizing plan'],antonymsVi:['chương trình sa thải','kế hoạch giảm quy mô'],wordFamily:['retain (v)','retention (n)','employee (n)'],wordFamilyVi:['giữ lại (động từ)','giữ lại (danh từ)','nhân viên (danh từ)'],example:'"An effective employee retention program can reduce turnover costs significantly."',exampleVi:'"Một chương trình giữ lại nhân viên hiệu quả có thể giảm chi phí luân chuyển đáng kể."'},
+  {id:6,en:'enact a policy',alt:'adopt a policy',ipa:'/ɪˈnækt ə ˈpɒlɪsi/',pos:'v',vi:'Thực hiện / áp dụng một chính sách',enDef:'To officially put a policy into practice or make it law',collocations:['enact legislation','enact reforms','adopt new policies','enact strict regulations'],collocationVi:['ban hành lập pháp','ban hành cải cách','áp dụng chính sách mới','ban hành quy định nghiêm ngặt'],synonyms:['implement','adopt','introduce','enforce'],synonymsVi:['triển khai','áp dụng','giới thiệu','thực thi'],antonyms:['repeal','abolish','revoke'],antonymsVi:['bãi bỏ','hủy bỏ','thu hồi'],wordFamily:['enactment (n)','policy (n)','policymaker (n)'],wordFamilyVi:['ban hành (danh từ)','chính sách (danh từ)','nhà lập chính sách (danh từ)'],example:'"The government enacted a policy to reduce carbon emissions by 30%."',exampleVi:'"Chính phủ ban hành chính sách để giảm lượng khí thải carbon xuống 30%."'},
+  {id:7,en:'migrate',ipa:'/maɪˈɡreɪt/',pos:'v',vi:'Di cư từ X đến Y',enDef:'To move from one place to another, especially to find work or better conditions',collocations:['migrate from X to Y','migrate in search of','migrate seasonally','mass migration'],collocationVi:['di cư từ X đến Y','di cư để tìm kiếm','di cư theo mùa','di cư hàng loạt'],synonyms:['relocate','move','resettle'],synonymsVi:['chuyển địa điểm','di chuyển','định cư lại'],antonyms:['stay','remain','settle'],antonymsVi:['ở lại','vẫn ở','ổn định'],wordFamily:['migration (n)','migrant (n)','migratory (adj)'],wordFamilyVi:['di cư (danh từ)','người di cư (danh từ)','di cư (tính từ)'],example:'"Many workers migrate from rural areas to cities in search of employment."',exampleVi:'"Nhiều công nhân di cư từ các khu vực nông thôn đến các thành phố tìm việc làm."',usage:'migrate from X to Y'},
+  {id:8,en:'emigrate',ipa:'/ˈemɪɡreɪt/',pos:'v',vi:'Rời khỏi nước mình để đến sống ở nước khác',enDef:'To leave your own country to go and live permanently in another country',collocations:['emigrate from X to Y','emigrate abroad','decide to emigrate'],collocationVi:['rời khỏi X để sống ở Y','di cư ra nước ngoài','quyết định di cư'],synonyms:['leave one\'s country','relocate abroad','move overseas'],synonymsVi:['rời khỏi nước mình','chuyển địa điểm nước ngoài','chuyển sang nước ngoài'],antonyms:['immigrate','return home','repatriate'],antonymsVi:['nhập cư','trở về nhà','tái nhập cư'],wordFamily:['emigration (n)','emigrant (n)'],wordFamilyVi:['di cư (danh từ)','người di cư (danh từ)'],example:'"Many skilled professionals emigrate from developing countries to seek better opportunities."',exampleVi:'"Nhiều chuyên gia có kỹ năng cao di cư từ các nước đang phát triển để tìm cơ hội tốt hơn."',usage:'emigrate from X to Y'},
+  {id:9,en:'immigrate',ipa:'/ˈɪmɪɡreɪt/',pos:'v',vi:'Nhập cư vào',enDef:'To come to live permanently in a country that is not your own',collocations:['immigrate into Y','immigrate legally','immigrate for work'],collocationVi:['nhập cư vào Y','nhập cư hợp pháp','nhập cư để làm việc'],synonyms:['settle in','move to','enter a country'],synonymsVi:['định cư','chuyển đến','nhập cảnh nước khác'],antonyms:['emigrate','leave','depart'],antonymsVi:['di cư','rời đi','khởi hành'],wordFamily:['immigration (n)','immigrant (n)'],wordFamilyVi:['nhập cư (danh từ)','người nhập cư (danh từ)'],example:'"Thousands of people immigrate into developed countries every year."',exampleVi:'"Hàng ngàn người nhập cư vào các nước phát triển mỗi năm."',usage:'immigrate into Y'},
+  {id:10,en:'migrant',ipa:'/ˈmaɪɡrənt/',pos:'n',vi:'Người di cư; động vật di cư',enDef:'A person who moves from one place to another to find work or better living conditions',collocations:['migrant worker','economic migrant','migrant population','illegal migrant'],collocationVi:['lao động di cư','người di cư vì kinh tế','dân số di cư','người di cư bất hợp pháp'],synonyms:['immigrant','expatriate','newcomer'],synonymsVi:['người nhập cư','kiều dân','người mới đến'],antonyms:['native','local','resident'],antonymsVi:['người bản địa','người địa phương','cư dân'],wordFamily:['migrate (v)','migration (n)','migratory (adj)'],wordFamilyVi:['di cư (động từ)','di cư (danh từ)','di cư (tính từ)'],example:'"Migrant workers often face exploitation and poor working conditions."',exampleVi:'"Các lao động di cư thường phải đối mặt với bóc lột và điều kiện làm việc tồi tệ."'},
+  {id:11,en:'emerge',ipa:'/ɪˈmɜːrdʒ/',pos:'v',vi:'Trồi lên, xuất hiện',enDef:'To come out of something or appear; to become known',collocations:['emerge from','emerge as a leader','new evidence emerges','emerge victorious'],collocationVi:['trồi lên từ','nổi lên thành lãnh đạo','bằng chứng mới xuất hiện','nổi lên chiến thắng'],synonyms:['appear','surface','arise','come forth'],synonymsVi:['xuất hiện','nổi lên','phát sinh','phát sinh'],antonyms:['disappear','vanish','submerge'],antonymsVi:['biến mất','mất tích','chìm xuống'],wordFamily:['emergence (n)','emerging (adj)','emergent (adj)'],wordFamilyVi:['sự xuất hiện (danh từ)','mới nổi (tính từ)','đang xuất hiện (tính từ)'],example:'"New technologies continue to emerge at a rapid pace."',exampleVi:'"Các công nghệ mới tiếp tục xuất hiện với tốc độ nhanh chóng."'},
+  {id:12,en:'emergence',ipa:'/ɪˈmɜːrdʒəns/',pos:'n',vi:'Sự xuất hiện',enDef:'The process of becoming visible or coming into existence',collocations:['the emergence of','rapid emergence','emergence of new trends','cultural emergence'],collocationVi:['sự xuất hiện của','sự xuất hiện nhanh chóng','sự xuất hiện của xu hướng mới','sự xuất hiện văn hóa'],synonyms:['appearance','rise','advent','development'],synonymsVi:['xuất hiện','sự phát triển','sự ra đời','sự phát triển'],antonyms:['disappearance','decline','extinction'],antonymsVi:['biến mất','suy giảm','tuyệt chủng'],wordFamily:['emerge (v)','emerging (adj)','emergent (adj)'],wordFamilyVi:['xuất hiện (động từ)','mới nổi (tính từ)','đang xuất hiện (tính từ)'],example:'"The emergence of social media has transformed communication."',exampleVi:'"Sự xuất hiện của phương tiện truyền thông xã hội đã thay đổi giao tiếp."'},
+  {id:13,en:'erect',ipa:'/ɪˈrekt/',pos:'v',vi:'Xây lên, dựng lên',enDef:'To build or put up a structure or building',collocations:['erect a building','erect a monument','erect barriers','erect a statue'],collocationVi:['xây dựng một tòa nhà','dựng một tượng đài','dựng rào cản','dựng một tượng'],synonyms:['build','construct','put up','raise'],synonymsVi:['xây dựng','xây','đặt lên','nâng lên'],antonyms:['demolish','tear down','dismantle'],antonymsVi:['phá hủy','phá dỡ','tháo dỡ'],wordFamily:['erection (n)','erect (adj)'],wordFamilyVi:['sự xây dựng (danh từ)','thẳng (tính từ)'],example:'"The city plans to erect a new monument in the town square."',exampleVi:'"Thành phố có kế hoạch dựng một tượng đài mới tại quảng trường thị trấn."'},
+  {id:14,en:'artifact',ipa:'/ˈɑːrtɪfækt/',pos:'n',vi:'Hiện vật',enDef:'An object made by a human being, typically of historical or cultural interest',collocations:['ancient artifact','cultural artifact','historical artifact','artifact collection'],collocationVi:['hiện vật cổ đại','hiện vật văn hóa','hiện vật lịch sử','bộ sưu tập hiện vật'],synonyms:['relic','antique','object','remnant'],synonymsVi:['di tích','đồ cổ','vật thể','tàn tích'],antonyms:['natural object','modern creation'],antonymsVi:['vật tự nhiên','sáng tạo hiện đại'],wordFamily:['artifactual (adj)'],wordFamilyVi:['liên quan đến hiện vật (tính từ)'],example:'"Archaeologists discovered several artifacts dating back to the Bronze Age."',exampleVi:'"Các nhà khảo cổ phát hiện ra nhiều hiện vật từ thời kỳ Đồ đồng."'},
+  {id:15,en:'pastime',ipa:'/ˈpæstaɪm/',pos:'n',vi:'Sở thích, thú tiêu khiển',enDef:'An activity done regularly for enjoyment; a hobby',collocations:['favorite pastime','national pastime','popular pastime','leisure pastime'],collocationVi:['sở thích yêu thích','sở thích quốc dân','sở thích phổ biến','sở thích giải trí'],synonyms:['hobby','recreation','amusement','leisure activity'],synonymsVi:['sở thích','giải trí','vui chơi','hoạt động giải trí'],antonyms:['work','labor','chore'],antonymsVi:['công việc','lao động','việc nhà'],wordFamily:['past (n) + time (n)'],wordFamilyVi:['quá khứ (danh từ) + thời gian (danh từ)'],example:'"Reading is considered a popular pastime among students."',exampleVi:'"Đọc sách được coi là sở thích phổ biến trong học sinh."'},
+  {id:16,en:'intact',ipa:'/ɪnˈtækt/',pos:'adj',vi:'Nguyên vẹn, không sứt mẻ',enDef:'Not damaged or impaired; complete and whole',collocations:['remain intact','keep intact','leave intact','largely intact'],collocationVi:['vẫn nguyên vẹn','giữ nguyên vẹn','để nguyên vẹn','phần lớn nguyên vẹn'],synonyms:['undamaged','whole','complete','unbroken'],synonymsVi:['không bị hư hại','hoàn chỉnh','toàn bộ','không bị gãy'],antonyms:['damaged','broken','impaired','destroyed'],antonymsVi:['bị hư hại','bị gãy','bị suy yếu','bị phá hủy'],wordFamily:['intactness (n)'],wordFamilyVi:['tính nguyên vẹn (danh từ)'],example:'"Despite the earthquake, the ancient temple remained largely intact."',exampleVi:'"Mặc dù có động đất, ngôi đền cổ vẫn phần lớn nguyên vẹn."'},
+  {id:17,en:'captive animals',ipa:'/ˈkæptɪv ˈænɪməlz/',pos:'n',vi:'Động vật sống trong điều kiện nuôi nhốt',enDef:'Animals that are kept in a confined space and not free to roam',collocations:['captive animals in zoos','breed captive animals','captive animal welfare','release captive animals'],collocationVi:['động vật nuôi nhốt trong vườn thú','nhân giống động vật nuôi nhốt','phúc lợi động vật nuôi nhốt','thả động vật nuôi nhốt'],synonyms:['caged animals','confined animals','zoo animals'],synonymsVi:['động vật trong lồng','động vật bị nhốt','động vật vườn thú'],antonyms:['wild animals','free-roaming animals'],antonymsVi:['động vật hoang dã','động vật tự do'],wordFamily:['captive (adj/n)','captivity (n)','capture (v)'],wordFamilyVi:['nuôi nhốt (tính từ/danh từ)','tình trạng nuôi nhốt (danh từ)','bắt (động từ)'],example:'"Captive animals often exhibit behavioral problems not seen in the wild."',exampleVi:'"Động vật nuôi nhốt thường biểu hiện vấn đề hành vi không thấy ở tự nhiên."'},
+  {id:18,en:'keep/hold somebody captive',ipa:'/kiːp ˈkæptɪv/',pos:'v',vi:'Bắt giữ, giam cầm, nhốt lại',enDef:'To keep someone as a prisoner and not allow them to escape',collocations:['hold captive for days','keep prisoners captive','held captive by terrorists'],collocationVi:['giam cầm trong nhiều ngày','giam cầm tù nhân','bị giam cầm bởi khủng bố'],synonyms:['imprison','confine','detain','incarcerate'],synonymsVi:['tống giam','nhốt','bắt giữ','đưa vào tù'],antonyms:['release','free','liberate'],antonymsVi:['thả','giải phóng','tự do'],wordFamily:['captive (adj/n)','captivity (n)','captor (n)'],wordFamilyVi:['nuôi nhốt (tính từ/danh từ)','tình trạng nuôi nhốt (danh từ)','người bắt (danh từ)'],example:'"The hostages were held captive for several months before being rescued."',exampleVi:'"Những con tin bị giam cầm trong nhiều tháng trước khi được giải cứu."'},
+  {id:19,en:'be devoid of',ipa:'/bi dɪˈvɔɪd ʌv/',pos:'adj',vi:'Thiếu / không có một thứ quan trọng, cần thiết',enDef:'Completely lacking in something important or necessary',collocations:['devoid of emotion','devoid of meaning','devoid of talent','devoid of hope'],collocationVi:['thiếu cảm xúc','thiếu ý nghĩa','thiếu tài năng','thiếu hy vọng'],synonyms:['lacking','without','empty of','bereft of'],synonymsVi:['thiếu','không có','rỗng','mất'],antonyms:['full of','rich in','abundant in'],antonymsVi:['đầy','giàu','dồi dào'],wordFamily:['devoid (adj)','void (n/adj)'],wordFamilyVi:['thiếu (tính từ)','rỗng (danh từ/tính từ)'],example:'"The report was devoid of any concrete evidence to support the claim."',exampleVi:'"Báo cáo thiếu bất kỳ bằng chứng cụ thể nào để hỗ trợ yêu cầu."'},
+  {id:20,en:'precede',ipa:'/prɪˈsiːd/',pos:'v',vi:'Có trước, đi trước',enDef:'To come before something in time, order, or position',collocations:['precede an event','precede a meeting','the year preceding','immediately precede'],collocationVi:['đi trước sự kiện','đi trước cuộc họp','năm đi trước','đi trước ngay lập tức'],synonyms:['come before','predate','antecede','forerun'],synonymsVi:['đi trước','đi trước thời gian','đi trước','dẫn đầu'],antonyms:['follow','succeed','come after'],antonymsVi:['theo sau','tiếp theo','đi sau'],wordFamily:['precedent (n)','preceding (adj)','unprecedented (adj)','precedence (n)'],wordFamilyVi:['tiền lệ (danh từ)','đi trước (tính từ)','chưa có tiền lệ (tính từ)','ưu tiên (danh từ)'],example:'"A brief introduction will precede the main presentation."',exampleVi:'"Một phần giới thiệu ngắn gọn sẽ được trình bày trước bài thuyết trình chính."'},
+  {id:21,en:'turn to crime',alt:'turn to drugs',ipa:'/tɜːrn tuː kraɪm/',pos:'phrase',vi:'Sa vào tội phạm / ma túy',enDef:'To start committing crimes or using drugs, often due to difficult circumstances',collocations:['turn to crime out of desperation','turn to drugs','turn to a life of crime'],collocationVi:['sa vào tội phạm vì tuyệt vọng','sa vào ma túy','đi vào cuộc sống tội phạm'],synonyms:['resort to crime','fall into crime','become involved in crime'],synonymsVi:['sử dụng tội phạm','rơi vào tội phạm','liên quan tới tội phạm'],antonyms:['go straight','reform','rehabilitate'],antonymsVi:['sửa chữa','cải cách','tái hòa nhập'],wordFamily:['turn (v)','crime (n)','criminal (n/adj)'],wordFamilyVi:['chuyển (động từ)','tội phạm (danh từ)','tội phạm (danh từ/tính từ)'],example:'"People often turn to crime when they cannot make ends meet."',exampleVi:'"Mọi người thường sa vào tội phạm khi không thể trang trải cuộc sống."'},
+  {id:22,en:'convict',ipa:'/ˈkɒnvɪkt/',pos:'n',vi:'Một người từng đi tù',enDef:'A person who has been found guilty of a criminal offense and is serving a sentence',collocations:['convicted criminal','ex-convict','convict on parole','convicted of murder'],collocationVi:['tội phạm bị kết án','tù nhân cũ','tù nhân trả lệnh','bị kết án giết người'],synonyms:['prisoner','inmate','offender','felon'],synonymsVi:['tù nhân','người bị giam','người vi phạm','kẻ phạm tội'],antonyms:['free person','law-abiding citizen'],antonymsVi:['người tự do','công dân tuân thủ pháp luật'],wordFamily:['convict (v)','conviction (n)','ex-convict / ex-con (n)'],wordFamilyVi:['kết án (động từ)','kết luận (danh từ)','tù nhân cũ (danh từ)'],example:'"Ex-convicts often struggle to find employment after their release."',exampleVi:'"Những tù nhân cũ thường gặp khó khăn trong việc tìm việc làm sau khi được ph釋 nhân."'},
+  {id:23,en:'be convicted of',ipa:'/bi kənˈvɪktɪd ʌv/',pos:'v',vi:'Bị kết án về tội',enDef:'To be officially found guilty of a crime in a court of law',collocations:['convicted of fraud','convicted of theft','convicted of murder','wrongly convicted'],collocationVi:['bị kết án vì gian lận','bị kết án vì trộm cắp','bị kết án vì giết người','bị kết án oan'],synonyms:['found guilty of','sentenced for','judged guilty of'],synonymsVi:['bị tuyên bố có tội','bị phạt','bị xét xử có tội'],antonyms:['acquitted of','cleared of','found innocent of'],antonymsVi:['bị miễn truy tố','bị xóa tên','bị tuyên bố vô tội'],wordFamily:['convict (n/v)','conviction (n)'],wordFamilyVi:['kẻ phạm tội (danh từ/động từ)','kết luận (danh từ)'],example:'"He was convicted of fraud and sentenced to five years in prison."',exampleVi:'"Anh ta bị kết án gian lận và phạt 5 năm tù."'},
+  {id:24,en:'decent',ipa:'/ˈdiːsənt/',pos:'adj',vi:'Tử tế, đàng hoàng; khá tốt',enDef:'Of an acceptable standard; kind, honest, and respectable',collocations:['decent salary','decent living conditions','decent person','decent job'],collocationVi:['mức lương hợp lý','điều kiện sống tốt','người tử tế','công việc ổn định'],synonyms:['respectable','adequate','proper','fair'],synonymsVi:['đáng kính','đủ','thích hợp','công bằng'],antonyms:['indecent','poor','inadequate','unacceptable'],antonymsVi:['không đàng hoàng','kém','không đủ','không chấp nhận được'],wordFamily:['decency (n)','decently (adv)','indecent (adj)'],wordFamilyVi:['tính tử tế (danh từ)','một cách tử tế (trạng từ)','không đàng hoàng (tính từ)'],example:'"Everyone deserves access to decent housing and healthcare."',exampleVi:'"Mọi người đều xứng đáng có quyền tiếp cận nhà ở tốt và chăm sóc sức khỏe."'},
+  {id:25,en:'be at a loss for words',ipa:'/bi æt ə lɒs fɔːr wɜːrdz/',pos:'phrase',vi:'Không biết nói gì, bất ngờ đến mức không nói nên lời',enDef:'To be so surprised or upset that you do not know what to say',collocations:['completely at a loss for words','left at a loss for words','at a loss to explain'],collocationVi:['hoàn toàn không biết nói gì','bị bất ngờ không biết nói gì','bất lực giải thích'],synonyms:['speechless','tongue-tied','dumbfounded','lost for words'],synonymsVi:['câm lặng','tê liệt lưỡi','choáng váng','không biết nói gì'],antonyms:['articulate','eloquent','outspoken'],antonymsVi:['nói rõ ràng','lưu loát','nói thẳng thắn'],wordFamily:['loss (n)','lose (v)'],wordFamilyVi:['mất (danh từ)','mất (động từ)'],example:'"When she heard the news, she was completely at a loss for words."',exampleVi:'"Khi cô nghe tin tức, cô hoàn toàn không biết phải nói gì."'},
+  {id:26,en:'end up',ipa:'/end ʌp/',pos:'v',vi:'Cuối cùng rơi vào tình trạng (thường không mong muốn)',enDef:'To finally be in a particular place or situation, often unintentionally',collocations:['end up doing something','end up in prison','end up homeless','end up losing'],collocationVi:['cuối cùng làm điều gì đó','cuối cùng vào tù','cuối cùng vô gia cư','cuối cùng mất'],synonyms:['wind up','finish up','turn out','result in'],synonymsVi:['kết thúc','kết thúc','hóa ra','dẫn đến'],antonyms:['start','begin','set out'],antonymsVi:['bắt đầu','bắt đầu','khởi hành'],wordFamily:['end (n/v)','ending (n)'],wordFamilyVi:['cuối (danh từ/động từ)','kết thúc (danh từ)'],example:'"Without proper education, many young people end up working in low-paid jobs."',exampleVi:'"Nếu không có giáo dục phù hợp, nhiều thanh niên cuối cùng sẽ làm việc ở những công việc lương thấp."',usage:'end up + V-ing / P2'},
+  {id:27,en:'well-informed',alt:'ill-informed',ipa:'/ˌwel ɪnˈfɔːrmd/',pos:'adj',vi:'Hiểu biết rộng / thiếu hiểu biết',enDef:'Having a lot of knowledge about current events or a particular subject (or lacking it)',collocations:['well-informed citizens','well-informed decision','ill-informed opinion','keep well-informed'],collocationVi:['công dân thông thái','quyết định sáng suốt','ý kiến thiếu căn cứ','giữ thông tin cập nhật'],synonyms:['knowledgeable','educated','aware','up-to-date'],synonymsVi:['có kiến thức','có giáo dục','nhận thức','cập nhật'],antonyms:['ill-informed','ignorant','uninformed','unaware'],antonymsVi:['thiếu hiểu biết','ngu dân','không thông tin','không nhận thức'],wordFamily:['inform (v)','information (n)','informative (adj)'],wordFamilyVi:['thông báo (động từ)','thông tin (danh từ)','mang tính thông báo (tính từ)'],example:'"Well-informed voters are essential for a healthy democracy."',exampleVi:'"Những cử tri thông thái là cần thiết cho một nền dân chủ lành mạnh."'},
+  {id:28,en:'suspicious',alt:'suspect (v/n)',ipa:'/səˈspɪʃəs/',pos:'adj',vi:'Đáng ngờ, nghi ngờ',enDef:'Having or showing a feeling that something is wrong or that someone is behaving dishonestly',collocations:['suspicious behavior','look suspicious','suspicious of somebody','become suspicious'],collocationVi:['hành vi đáng ngờ','trông đáng ngờ','nghi ngờ ai đó','trở nên nghi ngờ'],synonyms:['doubtful','distrustful','wary','skeptical'],synonymsVi:['đáng ngờ','không tin tưởng','cảnh báo','hoài nghi'],antonyms:['trusting','unsuspecting','confident','gullible'],antonymsVi:['tin tưởng','không nghi ngờ','tự tin','dễ bị lừa'],wordFamily:['suspect (v/n)','suspicion (n)','suspiciously (adv)'],wordFamilyVi:['nghi ngờ (động từ/danh từ)','sự nghi ngờ (danh từ)','một cách nghi ngờ (trạng từ)'],example:'"The police became suspicious when the suspect could not provide an alibi."',exampleVi:'"Cảnh sát trở nên nghi ngờ khi nghi phạm không thể cung cấp bằng chứng alibi."',usage:'suspicious / suspect / suspect that'},
+  {id:29,en:'reform',ipa:'/rɪˈfɔːrm/',pos:'n/v',vi:'Cải cách; cải tổ',enDef:'A change made to improve a system, law, or institution; to make changes for improvement',collocations:['economic reforms','political reform','reform the system','radical reform','reform policy'],collocationVi:['cải cách kinh tế','cải cách chính trị','cải cách hệ thống','cải cách cơ bản','chính sách cải cách'],synonyms:['improvement','amendment','overhaul','transformation'],synonymsVi:['cải tiến','sửa đổi','đại tu','biến đổi'],antonyms:['deterioration','corruption','stagnation'],antonymsVi:['suy thoái','tham nhũng','trì trệ'],wordFamily:['reform (v/n)','reformer (n)','reformation (n)','reformist (n/adj)'],wordFamilyVi:['cải cách (động từ/danh từ)','nhà cải cách (danh từ)','cải cách (danh từ)','nhà cải cách (danh từ/tính từ)'],example:'"The government introduced sweeping economic reforms to boost growth."',exampleVi:'"Chính phủ đã giới thiệu các cải cách kinh tế toàn diện để thúc đẩy tăng trưởng."'},
+  {id:30,en:'make/earn a living',alt:'make ends meet',ipa:'/meɪk ə ˈlɪvɪŋ/',pos:'phrase',vi:'Kiếm sống / đủ sống qua ngày',enDef:'To earn enough money to support oneself; to manage to pay for basic needs',collocations:['make a decent living','earn a living from','struggle to make ends meet','barely make ends meet'],collocationVi:['kiếm sống đàng hoàng','kiếm sống từ','vật lộn để trang trải','khó trang trải'],synonyms:['earn one\'s keep','support oneself','get by','survive financially'],synonymsVi:['kiếm sống','tự nuôi sống','sống nhờn','sống sót về tài chính'],antonyms:['be wealthy','be affluent','live in luxury'],antonymsVi:['giàu có','giàu','sống xa hoa'],wordFamily:['living (n)','live (v)','livelihood (n)'],wordFamilyVi:['sống (danh từ)','sống (động từ)','sinh kế (danh từ)'],example:'"Many families struggle to make ends meet in the current economic climate."',exampleVi:'"Nhiều gia đình vật lộn để trang trải trong bối cảnh kinh tế hiện tại."'},
+  {id:31,en:'settle a dispute',alt:'settle a conflict',ipa:'/ˈsetl ə dɪˈspjuːt/',pos:'v',vi:'Giải quyết tranh chấp / xung đột',enDef:'To end an argument or disagreement by finding a solution acceptable to both sides',collocations:['settle a dispute peacefully','settle a conflict','settle differences','settle out of court'],collocationVi:['giải quyết tranh chấp hòa bình','giải quyết xung đột','giải quyết khác biệt','giải quyết ngoài tòa'],synonyms:['resolve','mediate','reconcile','sort out'],synonymsVi:['giải quyết','hòa giải','hòa lại','sắp xếp'],antonyms:['escalate','aggravate','provoke','intensify'],antonymsVi:['leo thang','làm trầm trọng','khiêu khích','tăng cường'],wordFamily:['settle (v)','settlement (n)','settler (n)'],wordFamilyVi:['giải quyết (động từ)','giải quyết (danh từ)','cư dân (danh từ)'],example:'"The two countries agreed to settle the dispute through diplomatic negotiations."',exampleVi:'"Hai quốc gia đã đồng ý giải quyết tranh chấp thông qua đàm phán ngoại giao."'},
+  {id:32,en:'contemptuous',ipa:'/kənˈtemptʃuəs/',pos:'adj',vi:'Khinh miệt, coi thường',enDef:'Showing contempt; feeling that someone or something is worthless',collocations:['contemptuous attitude','contemptuous of authority','contemptuous look','treat with contempt'],collocationVi:['thái độ khinh miệt','khinh miệt quyền lực','cái nhìn khinh miệt','đối xử với sự khinh miệt'],synonyms:['scornful','disdainful','derisive','dismissive'],synonymsVi:['châm chọc','khinh miệt','嘲笑','bỏ qua'],antonyms:['respectful','admiring','appreciative','reverent'],antonymsVi:['tôn trọng','ngưỡng mộ','đánh giá cao','tôn kính'],wordFamily:['contempt (n)','contemptuously (adv)','contemptible (adj)'],wordFamilyVi:['sự khinh miệt (danh từ)','một cách khinh miệt (trạng từ)','đáng khinh (tính từ)'],example:'"His contemptuous attitude towards the poor revealed his true character."',exampleVi:'"Thái độ khinh miệt của anh ấy đối với những người nghèo lộ lõi tính cách thực sự."'},
+  {id:33,en:'mercy',ipa:'/ˈmɜːrsi/',pos:'n',vi:'Lòng thương xót, sự khoan dung',enDef:'Compassion or forgiveness shown towards someone whom it is within one\'s power to punish',collocations:['show mercy','at the mercy of','beg for mercy','have mercy on','without mercy'],collocationVi:['thể hiện lòng thương xót','dưới sự kiểm soát','xin lỗi','có lòng thương xót','không có lòng thương xót'],synonyms:['compassion','clemency','leniency','pity'],synonymsVi:['lòng thương xót','khoan dung','nhân độ','động lòng'],antonyms:['cruelty','harshness','ruthlessness','severity'],antonymsVi:['độc ác','khắt khe','tàn nhẫn','cấp độ'],wordFamily:['merciful (adj)','merciless (adj)','mercifully (adv)'],wordFamilyVi:['có lòng thương xót (tính từ)','không có lòng thương xót (tính từ)','một cách may mắn (trạng từ)'],example:'"The judge showed mercy and reduced the sentence."',exampleVi:'"Thẩm phán đã thể hiện lòng thương xót và giảm hình phạt."'},
+  {id:34,en:'destitute',ipa:'/ˈdestɪtjuːt/',pos:'adj',vi:'Nghèo khổ cùng cực, không có gì',enDef:'Extremely poor and lacking the means to provide for oneself',collocations:['destitute families','leave someone destitute','destitute of hope','utterly destitute'],collocationVi:['gia đình nghèo khổ','bỏ ai trong tình trạng cùng cực','mất hy vọng','cực kỳ nghèo khổ'],synonyms:['impoverished','poverty-stricken','penniless','indigent'],synonymsVi:['bị đánh cắp tài sản','tật nghèo','không đồng','vô sản'],antonyms:['wealthy','affluent','prosperous','rich'],antonymsVi:['giàu có','giàu','thịnh vượng','giàu sang'],wordFamily:['destitution (n)'],wordFamilyVi:['tình trạng cùng cực (danh từ)'],example:'"The war left thousands of families completely destitute."',exampleVi:'"Cuộc chiến đã để lại hàng ngàn gia đình trong tình trạng cùng cực."'},
+  {id:35,en:'eradicate',ipa:'/ɪˈrædɪkeɪt/',pos:'v',vi:'Xóa bỏ hoàn toàn, loại trừ',enDef:'To get rid of something completely, especially something bad or undesirable',collocations:['eradicate poverty','eradicate disease','eradicate a virus','eradicate corruption','eradicate discrimination'],collocationVi:['xóa bỏ nghèo đói','xóa bỏ bệnh tật','xóa bỏ virus','xóa bỏ tham nhũng','xóa bỏ phân biệt'],synonyms:['eliminate','exterminate','wipe out','abolish','destroy'],synonymsVi:['loại trừ','tiêu diệt','xóa sạch','bãi bỏ','phá hủy'],antonyms:['introduce','establish','maintain','foster'],antonymsVi:['giới thiệu','thành lập','duy trì','nuôi dưỡng'],wordFamily:['eradication (n)','eradicated (adj)'],wordFamilyVi:['sự xóa bỏ (danh từ)','đã xóa bỏ (tính từ)'],example:'"Many organizations are working to eradicate malaria in developing countries."',exampleVi:'"Nhiều tổ chức đang làm việc để xóa bỏ sốt rét ở các nước đang phát triển."',usage:'eradicate + N'},
+  {id:36,en:'environmental degradation',ipa:'/ɪnˌvaɪrənˈmentəl ˌdeɡrəˈdeɪʃən/',pos:'n',vi:'Suy thoái môi trường, hư hỏng của môi trường',enDef:'The deterioration of the environment through depletion of resources or pollution',collocations:['environmental degradation due to','prevent environmental degradation','cause environmental degradation','address environmental degradation','combat environmental degradation'],collocationVi:['suy thoái môi trường do','ngăn chặn suy thoái môi trường','gây suy thoái môi trường','giải quyết suy thoái môi trường','chống lại suy thoái môi trường'],synonyms:['ecological damage','environmental destruction','habitat loss','pollution'],synonymsVi:['thiệt hại sinh thái','phá hủy môi trường','mất môi trường sống','ô nhiễm'],antonyms:['environmental conservation','environmental protection','ecological restoration'],antonymsVi:['bảo tồn môi trường','bảo vệ môi trường','phục hồi sinh thái'],wordFamily:['degrade (v)','degraded (adj)','degeneration (n)'],wordFamilyVi:['suy thoái (động từ)','suy thoái (tính từ)','sự thoái hóa (danh từ)'],example:'"Rapid industrialization has led to severe environmental degradation in the region."',exampleVi:'"Công nghiệp hóa nhanh chóng đã dẫn đến suy thoái môi trường nghiêm trọng ở khu vực này."'},
+  {id:37,en:'abolish',ipa:'/əˈbɒlɪʃ/',pos:'v',vi:'Bãi bỏ (luật, chế độ, tục lệ)',enDef:'To officially end or stop something, especially a law, system, or practice',collocations:['abolish slavery','abolish the death penalty','abolish a law','abolish discrimination','abolish fees'],collocationVi:['bãi bỏ chế độ nô lệ','bãi bỏ hình phạt tử hình','bãi bỏ luật','bãi bỏ phân biệt','bãi bỏ lệ phí'],synonyms:['repeal','cancel','eliminate','do away with','put an end to'],synonymsVi:['bãi bỏ','hủy bỏ','loại trừ','loại bỏ','kết thúc'],antonyms:['establish','introduce','maintain','enforce'],antonymsVi:['thành lập','giới thiệu','duy trì','thực thi'],wordFamily:['abolition (n)','abolitionist (n)','abolished (adj)'],wordFamilyVi:['sự bãi bỏ (danh từ)','nhà bãi bỏ (danh từ)','đã bãi bỏ (tính từ)'],example:'"Many countries have abolished the death penalty in recent decades."',exampleVi:'"Nhiều quốc gia đã bãi bỏ hình phạt tử hình trong những thập kỷ gần đây."',usage:'abolish + N'},
+  {id:38,en:'culprit',ipa:'/ˈkʌlprɪt/',pos:'n',vi:'Thủ phạm, người chịu trách nhiệm',enDef:'The person or thing responsible for a problem, crime, or bad situation',collocations:['the culprit behind','find the culprit','main culprit','real culprit','identify the culprit'],collocationVi:['thủ phạm đằng sau','tìm thủ phạm','thủ phạm chính','thủ phạm thực sự','xác định thủ phạm'],synonyms:['perpetrator','offender','guilty party','wrongdoer'],synonymsVi:['thủ phạm','người phạm tội','bên có lỗi','kẻ làm sai'],antonyms:['victim','innocent person','innocent bystander'],antonymsVi:['nạn nhân','người vô tội','người liên quan vô tình'],wordFamily:['culpability (n)','culpable (adj)'],wordFamilyVi:['trách nhiệm (danh từ)','có tội (tính từ)'],example:'"The police identified the culprit responsible for the theft."',exampleVi:'"Cảnh sát xác định thủ phạm chịu trách nhiệm cho vụ trộm cắp."'},
+  {id:39,en:'bizarre',alt:'strange / weird / odd / unusual / unorthodox',ipa:'/bɪˈzɑːr/',pos:'adj',vi:'Kỳ lạ, lạ lùng, quái đản',enDef:'Very strange or unusual in a surprising or interesting way',collocations:['bizarre behavior','bizarre incident','bizarre twist','absolutely bizarre','quite bizarre'],collocationVi:['hành vi kỳ lạ','sự kiện lạ lùng','lớp phủ kỳ lạ','cực kỳ lạ lùng','khá lạ lùng'],synonyms:['strange','weird','odd','unusual','peculiar','eccentric','unconventional'],synonymsVi:['lạ','kỳ dị','khác thường','bất thường','kỳ quặc','kỳ lạ','phi truyền thống'],antonyms:['normal','ordinary','usual','conventional','typical'],antonymsVi:['bình thường','thường','bình thường','theo truyền thống','điển hình'],wordFamily:['bizarrely (adv)','bizarreness (n)'],wordFamilyVi:['một cách lạ lùng (trạng từ)','tính lạ lùng (danh từ)'],example:'"The movie had a bizarre plot that kept audiences guessing until the end."',exampleVi:'"Bộ phim có một cốt truyện lạ lùng khiến khán giả phải đoán cho đến cuối cùng."'},
+  {id:40,en:'curb',ipa:'/kɜːrb/',pos:'v',vi:'Hạn chế, kiềm chế, ngăn chặn',enDef:'To limit or reduce something undesirable; to control or restrain',collocations:['curb inflation','curb emissions','curb spending','curb violence','curb growth'],collocationVi:['hạn chế lạm phát','hạn chế khí thải','hạn chế chi tiêu','kiềm chế bạo lực','hạn chế tăng trưởng'],synonyms:['limit','restrict','reduce','control','restrain','check','suppress'],synonymsVi:['giới hạn','hạn chế','giảm','kiểm soát','kiềm chế','kiểm tra','dập tắt'],antonyms:['increase','encourage','promote','expand','boost'],antonymsVi:['tăng','khuyến khích','quảng bá','mở rộng','thúc đẩy'],wordFamily:['curb (n)','curbed (adj)'],wordFamilyVi:['lề đường (danh từ)','bị kiềm chế (tính từ)'],example:'"The government introduced new policies to curb carbon emissions."',exampleVi:'"Chính phủ đã giới thiệu các chính sách mới để hạn chế khí thải carbon."',usage:'curb the growth/effects/influence of N'},
+
+  {id:41,en:'predecessor',ipa:'/ˈpriːdəsesər/',pos:'n',vi:'Người tiền nhiệm',enDef:'A person who had a job or position before someone else',collocations:['my predecessor','a predecessor in office','the predecessor of a system','predecessor company'],collocationVi:['người tiền nhiệm của tôi','người tiền nhiệm trong chức vụ','phiên bản/ hệ thống tiền nhiệm','công ty tiền nhiệm'],synonyms:['former holder','forerunner','prior incumbent'],synonymsVi:['người giữ chức trước đây','tiền thân','người đương nhiệm trước đó'],antonyms:['successor','replacement'],antonymsVi:['người kế nhiệm','người thay thế'],wordFamily:['precede (v)','predecessor (n)','preceding (adj)'],wordFamilyVi:['đi trước (động từ)','người tiền nhiệm (danh từ)','đi trước (tính từ)'],example:'"Her predecessor introduced the policy, but she expanded it."',exampleVi:'"Người tiền nhiệm của cô ấy đưa ra chính sách, nhưng cô ấy đã mở rộng nó."'},
+  {id:42,en:'unprecedented',ipa:'/ʌnˈpresɪdentɪd/',pos:'adj',vi:'Chưa từng có tiền lệ',enDef:'Never done or known before',collocations:['unprecedented growth','an unprecedented decision','unprecedented levels','unprecedented demand'],collocationVi:['tăng trưởng chưa từng có','quyết định chưa từng có','mức độ chưa từng có','nhu cầu chưa từng có'],synonyms:['unheard-of','never-before-seen','extraordinary'],synonymsVi:['chưa từng nghe thấy','chưa từng thấy','phi thường'],antonyms:['precedented','common','usual'],antonymsVi:['có tiền lệ','phổ biến','thường lệ'],wordFamily:['precedent (n)','precede (v)','unprecedented (adj)'],wordFamilyVi:['tiền lệ (danh từ)','đi trước (động từ)','chưa có tiền lệ (tính từ)'],example:'"The city experienced unprecedented flooding last year."',exampleVi:'"Thành phố đã trải qua trận lũ lụt chưa từng có vào năm ngoái."'},
+  {id:43,en:'take precedence',alt:'have/take priority',ipa:'/teɪk ˈpresɪdəns/',pos:'v',vi:'Được ưu tiên',enDef:'To be more important than something else and therefore dealt with first',collocations:['safety takes precedence','take precedence over cost','take precedence over profit','take precedence in emergencies'],collocationVi:['an toàn được ưu tiên','được ưu tiên hơn chi phí','được ưu tiên hơn lợi nhuận','được ưu tiên trong tình huống khẩn cấp'],synonyms:['have priority','come first','outrank'],synonymsVi:['có ưu tiên','đứng trước','quan trọng hơn'],antonyms:['be secondary','come second'],antonymsVi:['là thứ yếu','đứng sau'],wordFamily:['precedence (n)','precedent (n)','precede (v)'],wordFamilyVi:['sự ưu tiên (danh từ)','tiền lệ (danh từ)','đi trước (động từ)'],example:'"In a crisis, public health should take precedence over politics."',exampleVi:'"Trong khủng hoảng, sức khỏe cộng đồng nên được ưu tiên hơn chính trị."',usage:'take precedence over + N'},
+  {id:44,en:'succeed',ipa:'/səkˈsiːd/',pos:'v',vi:'Kế nhiệm',enDef:'To officially take over a position or title after someone else',collocations:['succeed to the throne','succeed someone as CEO','succeed in office','succeed to a title'],collocationVi:['kế vị ngai vàng','kế nhiệm ai đó làm CEO','kế nhiệm trong chức vụ','kế nhiệm một tước hiệu'],synonyms:['take over','replace','follow'],synonymsVi:['tiếp quản','thay thế','theo sau'],antonyms:['precede','resign'],antonymsVi:['đi trước','từ chức'],wordFamily:['success (n)','successful (adj)','successfully (adv)','successor (n)'],wordFamilyVi:['thành công (danh từ)','thành công (tính từ)','một cách thành công (trạng từ)','người kế nhiệm (danh từ)'],example:'"She succeeded her mentor as head of the department."',exampleVi:'"Cô ấy kế nhiệm người cố vấn của mình làm trưởng khoa."',usage:'succeed somebody as + role'},
+  {id:45,en:'successor',ipa:'/səkˈsesər/',pos:'n',vi:'Người kế nhiệm',enDef:'A person who takes over a job or position after someone else',collocations:['name a successor','his successor','a successor state','successor company'],collocationVi:['chỉ định người kế nhiệm','người kế nhiệm của ông ấy','quốc gia kế thừa','công ty kế thừa'],synonyms:['replacement','heir','next in line'],synonymsVi:['người thay thế','người thừa kế','người kế tiếp'],antonyms:['predecessor','forebear'],antonymsVi:['người tiền nhiệm','tổ tiên/tiền bối'],wordFamily:['succeed (v)','successor (n)','succession (n)'],wordFamilyVi:['kế nhiệm (động từ)','người kế nhiệm (danh từ)','sự kế nhiệm (danh từ)'],example:'"The board is searching for a successor to the retiring director."',exampleVi:'"Hội đồng đang tìm người kế nhiệm vị giám đốc sắp nghỉ hưu."'},
+  {id:46,en:'be on the verge of extinction',alt:'be on the edge of extinction / be on the brink of extinction',ipa:'/bi ɒn ðə vɜːrdʒ əv ɪkˈstɪŋkʃən/',pos:'phrase',vi:'Trên đà tuyệt chủng',enDef:'To be very close to becoming extinct',collocations:['species on the verge of extinction','drive a species to extinction','prevent extinction','close to extinction'],collocationVi:['loài trên bờ vực tuyệt chủng','đẩy một loài đến tuyệt chủng','ngăn tuyệt chủng','gần tuyệt chủng'],synonyms:['be close to extinction','be nearly extinct','be at risk of dying out'],synonymsVi:['gần tuyệt chủng','gần như tuyệt chủng','có nguy cơ biến mất'],antonyms:['recover','rebound','thrive'],antonymsVi:['phục hồi','tăng trở lại','phát triển mạnh'],wordFamily:['extinct (adj)','extinction (n)','extinguish (v)'],wordFamilyVi:['tuyệt chủng (tính từ)','sự tuyệt chủng (danh từ)','dập tắt (động từ)'],example:'"Several amphibian species are on the verge of extinction due to habitat loss."',exampleVi:'"Một số loài lưỡng cư đang trên bờ vực tuyệt chủng do mất môi trường sống."'},
+  {id:47,en:'captive breeding program',ipa:'/ˈkæptɪv ˈbriːdɪŋ ˈproʊɡræm/',pos:'n',vi:'Chương trình gây giống nuôi nhốt',enDef:'A conservation program in which animals are bred in captivity to help increase population numbers',collocations:['launch a captive breeding program','successful breeding program','reintroduce into the wild','conservation breeding'],collocationVi:['khởi động chương trình gây giống nuôi nhốt','chương trình gây giống thành công','tái thả về tự nhiên','gây giống bảo tồn'],synonyms:['conservation breeding program','ex-situ breeding'],synonymsVi:['chương trình gây giống bảo tồn','gây giống ngoài tự nhiên'],antonyms:['uncontrolled hunting','habitat destruction'],antonymsVi:['săn bắn không kiểm soát','phá hủy môi trường sống'],wordFamily:['captive (adj/n)','breed (v)','breeding (n)'],wordFamilyVi:['nuôi nhốt (tính từ/danh từ)','gây giống/nuôi (động từ)','sự gây giống (danh từ)'],example:'"A captive breeding program helped bring the species back from near extinction."',exampleVi:'"Một chương trình gây giống nuôi nhốt đã giúp đưa loài này trở lại từ bờ vực tuyệt chủng."'},
+  {id:48,en:'catalyze',alt:'catalyse (BrE)',ipa:'/ˈkætəlaɪz/',pos:'v',vi:'Xúc tác, thúc đẩy',enDef:'To cause or accelerate a change or process',collocations:['catalyze change','catalyze growth','catalyze innovation','catalyze a reaction'],collocationVi:['thúc đẩy thay đổi','thúc đẩy tăng trưởng','thúc đẩy đổi mới','xúc tác phản ứng'],synonyms:['spark','trigger','accelerate','stimulate'],synonymsVi:['châm ngòi','kích hoạt','tăng tốc','kích thích'],antonyms:['hinder','slow down','impede'],antonymsVi:['cản trở','làm chậm','ngăn trở'],wordFamily:['catalyst (n)','catalyze (v)','catalytic (adj)'],wordFamilyVi:['chất xúc tác (danh từ)','xúc tác/thúc đẩy (động từ)','mang tính xúc tác (tính từ)'],example:'"The new policy catalyzed rapid investment in renewable energy."',exampleVi:'"Chính sách mới đã xúc tác cho làn sóng đầu tư nhanh vào năng lượng tái tạo."'},
+  {id:49,en:'act as a catalyst for',ipa:'/ækt æz ə ˈkætəlɪst fɔːr/',pos:'v',vi:'Đóng vai trò chất xúc tác cho',enDef:'To be the thing that makes a change or development happen more quickly',collocations:['act as a catalyst for change','act as a catalyst for innovation','act as a catalyst for reform','act as a catalyst in growth'],collocationVi:['đóng vai trò chất xúc tác cho thay đổi','đóng vai trò chất xúc tác cho đổi mới','đóng vai trò chất xúc tác cho cải cách','đóng vai trò chất xúc tác trong tăng trưởng'],synonyms:['spark','drive','fuel','kick-start'],synonymsVi:['châm ngòi','thúc đẩy','tiếp nhiên liệu','khởi động'],antonyms:['hold back','delay','stifle'],antonymsVi:['kìm hãm','trì hoãn','kìm nén'],wordFamily:['catalyst (n)','catalyze (v)','catalytic (adj)'],wordFamilyVi:['chất xúc tác (danh từ)','xúc tác/thúc đẩy (động từ)','mang tính xúc tác (tính từ)'],example:'"The crisis acted as a catalyst for major reforms."',exampleVi:'"Cuộc khủng hoảng đã đóng vai trò chất xúc tác cho những cải cách lớn."',usage:'act as a catalyst for + N'},
+  {id:50,en:'a remarkable feat',ipa:'/ə rɪˈmɑːrkəbl fiːt/',pos:'n',vi:'Thành tựu đáng kinh ngạc',enDef:'An impressive achievement that requires great skill, strength, or courage',collocations:['a remarkable feat of engineering','achieve a remarkable feat','an extraordinary feat','a feat of endurance'],collocationVi:['thành tựu kỹ thuật đáng kinh ngạc','đạt được một thành tựu đáng kinh ngạc','một kỳ tích phi thường','một kỳ tích về sức bền'],synonyms:['impressive achievement','great accomplishment','tour de force'],synonymsVi:['thành tích ấn tượng','thành tựu lớn','màn thể hiện xuất sắc'],antonyms:['failure','setback','defeat'],antonymsVi:['thất bại','thụt lùi','thua cuộc'],wordFamily:['feat (n)','feats (n)','featless (adj)'],wordFamilyVi:['thành tích/kỳ tích (danh từ)','các kỳ tích (danh từ)','không có thành tích (tính từ)'],example:'"Finishing the marathon in under three hours is a remarkable feat."',exampleVi:'"Hoàn thành marathon dưới ba giờ là một thành tựu đáng kinh ngạc."'},
+  {id:51,en:'ex-convict',alt:'ex-con',ipa:'/ˌeks ˈkɒnvɪkt/',pos:'n',vi:'Người từng đi tù',enDef:'A person who has been in prison and has been released',collocations:['an ex-convict seeking work','an ex-con on parole','support ex-convicts','hire an ex-con'],collocationVi:['một cựu tù nhân tìm việc','một người từng đi tù đang tạm tha','hỗ trợ cựu tù nhân','thuê người từng đi tù'],synonyms:['former prisoner','former inmate'],synonymsVi:['cựu tù nhân','người từng bị giam'],antonyms:['law-abiding citizen','first-time offender'],antonymsVi:['công dân tuân thủ pháp luật','người phạm tội lần đầu'],wordFamily:['convict (n/v)','conviction (n)','reoffend (v)'],wordFamilyVi:['tù nhân/kết án (danh từ/động từ)','kết án (danh từ)','tái phạm (động từ)'],example:'"Some employers refuse to hire an ex-convict despite their qualifications."',exampleVi:'"Một số nhà tuyển dụng từ chối thuê người từng đi tù dù họ có đủ năng lực."'}
+];
+
+// ===== AUDIO =====
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+function getAudioCtx(){
+  try{if(!audioCtx)audioCtx=new AudioCtx();return audioCtx}catch(e){console.warn("Audio context failed:",e);return null}
+}
+function playDing(){
+  try{
+    const c=getAudioCtx();if(!c)return;
+    const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.3;o.start();g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.5);o.stop(c.currentTime+0.5)
+  }catch(e){console.warn("Ding failed:",e)}
+}
+function playBuzz(){
+  try{
+    const c=getAudioCtx();if(!c)return;
+    const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.value=150;g.gain.value=0.15;o.start();g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.3);o.stop(c.currentTime+0.3)
+  }catch(e){console.warn("Buzz failed:",e)}
+}
+function speakWord(word){
+  try{
+    if(!window.speechSynthesis)return;
+    const u=new SpeechSynthesisUtterance(word);u.lang='en-US';u.rate=0.85;speechSynthesis.speak(u)
+  }catch(e){console.warn("Speech failed:",e)}
+}
+
+// ===== CONFETTI =====
+function showConfetti(){const c=document.createElement('div');c.className='confetti';document.body.appendChild(c);for(let i=0;i<30;i++){const p=document.createElement('div');p.style.cssText=`position:fixed;width:8px;height:8px;background:${['#FFAFCC','#457B9D','#A8DADC','#FFD700','#FF6B6B'][Math.floor(Math.random()*5)]};border-radius:50%;left:${Math.random()*100}%;top:-10px;z-index:9999;animation:fall ${1+Math.random()*2}s ease-out forwards`;c.appendChild(p)}const s=document.createElement('style');s.textContent='@keyframes fall{to{top:100%;opacity:0}}';document.head.appendChild(s);setTimeout(()=>{c.remove();s.remove()},3000)}
+
+// ===== TOAST =====
+function showToast(msg,type='success'){const t=document.createElement('div');t.className='toast';t.style.background=type==='success'?'var(--success)':'var(--error)';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
+
+// ===== STATE =====
+let currentScreen='home';
+let currentGame=null;
+let gameQuestions=[];
+let currentQ=0;
+let score=0;
+let answered=false;
+let progress={p1:0,p2:0,p3:0,p4:0};
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+// ===== RENDER =====
+function render(){
+  const app=document.getElementById('app');
+  if(!app){console.error("App container not found!");return}
+  switch(currentScreen){
+    case 'home':renderHome(app);break;
+    case 'vocab':renderVocabList(app);break;
+    case 'game':renderGame(app);break;
+    case 'result':renderResult(app);break;
+  }
+  // Icon initialization
+  if(window.lucide){
+    lucide.createIcons();
+  }else{
+    console.warn("⚠️ Lucide icons library not loaded");
+  }
+}
+
+function renderHome(app){
+  const total=VOCAB.length;
+  const learned=Math.round((progress.p1+progress.p2+progress.p3+progress.p4)/4);
+  app.innerHTML=`
+  <div class="flex flex-col items-center justify-center min-h-full p-6 fade-in">
+    <div class="text-center mb-8">
+      <div class="text-6xl mb-4">📚</div>
+      <h1 id="mainTitle" class="text-3xl font-800 mb-2" style="color:var(--dark)">${config.app_title}</h1>
+      <p class="text-sm opacity-70" style="color:var(--dark)">IELTS Vocabulary Game • ${total} từ vựng</p>
+    </div>
+    <div class="w-full max-w-md mb-8">
+      <div class="flex justify-between text-xs font-600 mb-2" style="color:var(--dark)"><span>Tiến độ chung</span><span>${learned}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${learned}%"></div></div>
+    </div>
+    <div class="w-full max-w-md space-y-3">
+      <button onclick="startGame(1)" class="btn-primary w-full flex items-center gap-3 text-lg"><span>🔵</span> Phần 1: Multiple Choice</button>
+      <button onclick="startGame(2)" class="btn-pink w-full flex items-center gap-3 text-lg"><span>🟡</span> Phần 2: Fill in the Blank</button>
+      <button onclick="startGame(3)" class="btn-primary w-full flex items-center gap-3 text-lg"><span>🟣</span> Phần 3: Mixed Mode</button>
+      <button onclick="startGame(4)" class="btn-pink w-full flex items-center gap-3 text-lg"><span>🔴</span> Phần 4: Master Test</button>
+      <div class="border-t pt-3 mt-3" style="border-color:#ddd">
+        <button onclick="currentScreen='vocab';render()" class="w-full py-3 rounded-xl font-600 flex items-center justify-center gap-2" style="background:var(--dark);color:#fff"><span>📘</span> Danh sách từ vựng đầy đủ</button>
+      </div>
+    </div>
+    <div class="mt-6 grid grid-cols-4 gap-3 w-full max-w-md">
+      ${[['P1',progress.p1,'🔵'],['P2',progress.p2,'🟡'],['P3',progress.p3,'🟣'],['P4',progress.p4,'🔴']].map(([l,p,e])=>`<div class="text-center p-3 rounded-xl" style="background:#fff"><div class="text-lg">${e}</div><div class="text-xs font-600 mt-1">${l}</div><div class="text-xs opacity-60">${p}%</div></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function startGame(part){
+  currentGame=part;currentQ=0;score=0;answered=false;
+  if(part===1)generateMC();
+  else if(part===2)generateFIB();
+  else if(part===3)generateMixed();
+  else if(part===4)generateMaster();
+  currentScreen='game';render();
+}
+
+// ===== PART 1: MULTIPLE CHOICE =====
+function generateMC(){
+  gameQuestions=shuffle(VOCAB).map(v=>{
+    const wrongs=shuffle(VOCAB.filter(x=>x.id!==v.id)).slice(0,3);
+    const opts=shuffle([v,...wrongs]);
+    return{type:'mc',vocab:v,options:opts,correctId:v.id};
+  });
+}
+
+// ===== PART 2: FILL IN BLANK =====
+function generateFIB(){
+  gameQuestions=shuffle(VOCAB).map(v=>({type:'fib',vocab:v}));
+}
+
+// ===== PART 3: MIXED =====
+function generateMixed(){
+  const all=shuffle(VOCAB);
+  gameQuestions=[];
+  all.forEach((v,i)=>{
+    const mode=i%4;
+    if(mode===0){
+      const wrongs=shuffle(VOCAB.filter(x=>x.id!==v.id)).slice(0,3);
+      const opts=shuffle([v,...wrongs]);
+      gameQuestions.push({type:'mc',vocab:v,options:opts,correctId:v.id});
+    }else if(mode===1){
+      gameQuestions.push({type:'fib',vocab:v});
+    }else if(mode===2){
+      // sentence completion
+      gameQuestions.push({type:'sentence',vocab:v});
+    }else{
+      const wrongs=shuffle(VOCAB.filter(x=>x.id!==v.id)).slice(0,3);
+      const opts=shuffle([v,...wrongs]);
+      gameQuestions.push({type:'mc_reverse',vocab:v,options:opts,correctId:v.id});
+    }
+  });
+}
+
+// ===== PART 4: MASTER =====
+function generateMaster(){
+  const all=shuffle(VOCAB);
+  gameQuestions=[];
+  all.forEach((v,i)=>{
+    const mode=i%2;
+    if(mode===0){
+      // Master: English Definition Only (hardcore mode)
+      const wrongs=shuffle(VOCAB.filter(x=>x.id!==v.id)).slice(0,3);
+      const opts=shuffle([v,...wrongs]);
+      gameQuestions.push({type:'master_mc',vocab:v,options:opts,correctId:v.id});
+    }else{
+      // Master: Sentence Completion (still challenging)
+      gameQuestions.push({type:'sentence',vocab:v});
+    }
+  });
+}
+
+function renderGame(app){
+  if(currentQ>=gameQuestions.length){
+    const pct=Math.round(score/gameQuestions.length*100);
+    progress[`p${currentGame}`]=Math.max(progress[`p${currentGame}`],pct);
+    currentScreen='result';render();return;
+  }
+  const q=gameQuestions[currentQ];
+  const titles=['','🔵 Multiple Choice','🟡 Fill in the Blank','🟣 Mixed Mode','🔴 Master Test'];
+  app.innerHTML=`
+  <div class="min-h-full p-4 fade-in">
+    <div class="max-w-lg mx-auto">
+      <div class="flex items-center justify-between mb-4">
+        <button onclick="currentScreen='home';render()" class="p-2 rounded-lg" style="background:#fff"><i data-lucide="arrow-left" style="width:20px;height:20px"></i></button>
+        <span class="font-700 text-sm" style="color:var(--dark)">${titles[currentGame]}</span>
+        <span class="text-sm font-600 px-3 py-1 rounded-full" style="background:#fff;color:var(--dark)">${currentQ+1}/${gameQuestions.length}</span>
+      </div>
+      <div class="progress-bar mb-6"><div class="progress-fill" style="width:${(currentQ/gameQuestions.length)*100}%"></div></div>
+      <div class="text-center mb-2"><span class="tag" style="background:var(--pink);color:var(--dark)">Score: ${score}/${currentQ}</span></div>
+      <div id="questionArea"></div>
+      <div id="explanationArea" class="mt-4"></div>
+      <div id="nextBtnArea" class="mt-4 text-center"></div>
+    </div>
+  </div>`;
+  lucide.createIcons();
+  renderQuestion(q);
+}
+
+function renderQuestion(q){
+  const area=document.getElementById('questionArea');
+  if(q.type==='mc'){
+    area.innerHTML=`
+    <div class="rounded-2xl p-5 mb-4" style="background:#fff">
+      <div class="flex items-center gap-2 mb-2"><span class="tag" style="background:var(--bg)">${q.vocab.pos}</span>
+        <button onclick="speakWord('${q.vocab.en.replace(/'/g,"\\'")}')" class="p-1 rounded-full" style="background:var(--pink)"><i data-lucide="volume-2" style="width:16px;height:16px"></i></button>
+      </div>
+      <p class="text-xl font-700 mb-1" style="color:var(--dark)">${q.vocab.vi}</p>
+      <p class="text-sm opacity-60">${q.vocab.enDef}</p>
+    </div>
+    <div class="space-y-3" id="optionsArea">
+      ${q.options.map((o,i)=>`<button class="option-btn" onclick="checkMC(${q.correctId},${o.id},this)">${String.fromCharCode(65+i)}. ${o.en}</button>`).join('')}
+    </div>`;
+  }else if(q.type==='mc_reverse'){
+    area.innerHTML=`
+    <div class="rounded-2xl p-5 mb-4" style="background:#fff">
+      <div class="flex items-center gap-2 mb-2"><span class="tag" style="background:var(--bg)">${q.vocab.pos}</span></div>
+      <p class="text-xl font-700 mb-1" style="color:var(--dark)">${q.vocab.en}</p>
+      <p class="text-sm opacity-60">Chọn nghĩa tiếng Việt đúng:</p>
+    </div>
+    <div class="space-y-3" id="optionsArea">
+      ${q.options.map((o,i)=>`<button class="option-btn" onclick="checkMC(${q.correctId},${o.id},this)">${String.fromCharCode(65+i)}. ${o.vi}</button>`).join('')}
+    </div>`;
+  }else if(q.type==='fib'){
+    area.innerHTML=`
+    <div class="rounded-2xl p-5 mb-4" style="background:#fff">
+      <div class="flex items-center gap-2 mb-2"><span class="tag" style="background:var(--bg)">${q.vocab.pos}</span>
+        <button onclick="speakWord('${q.vocab.en.replace(/'/g,"\\'")}')" class="p-1 rounded-full" style="background:var(--pink)"><i data-lucide="volume-2" style="width:16px;height:16px"></i></button>
+      </div>
+      <p class="text-xl font-700 mb-1" style="color:var(--dark)">${q.vocab.vi}</p>
+      <p class="text-sm opacity-60 mb-3">${q.vocab.enDef}</p>
+      ${q.vocab.usage?`<p class="text-sm mb-3" style="color:var(--accent)">💡 Cấu trúc: ${q.vocab.usage}</p>`:''}
+    </div>
+    <div class="flex gap-2">
+      <input id="fibInput" class="input-field flex-1" placeholder="Nhập từ tiếng Anh..." autocomplete="off" onkeydown="if(event.key==='Enter')checkFIB()">
+      <button onclick="checkFIB()" class="btn-primary">Kiểm tra</button>
+    </div>`;
+    setTimeout(()=>{const inp=document.getElementById('fibInput');if(inp)inp.focus()},100);
+  }else if(q.type==='sentence'){
+    const sent=q.vocab.example.replace(/"/g,'');
+    const word=q.vocab.en.split('/')[0].trim();
+    const blank=sent.replace(new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),'______');
+    area.innerHTML=`
+    <div class="rounded-2xl p-5 mb-4" style="background:#fff">
+      <div class="flex items-center gap-2 mb-2"><span class="tag" style="background:var(--bg)">${q.vocab.pos}</span></div>
+      <p class="text-sm opacity-60 mb-2">Điền từ thích hợp vào chỗ trống:</p>
+      <p class="text-lg font-600 mb-2" style="color:var(--dark)">${blank}</p>
+      <p class="text-sm" style="color:var(--accent)">💡 Nghĩa: ${q.vocab.vi}</p>
+    </div>
+    <div class="flex gap-2">
+      <input id="fibInput" class="input-field flex-1" placeholder="Nhập từ..." autocomplete="off" onkeydown="if(event.key==='Enter')checkSentence()">
+      <button onclick="checkSentence()" class="btn-primary">Kiểm tra</button>
+    </div>`;
+    setTimeout(()=>{const inp=document.getElementById('fibInput');if(inp)inp.focus()},100);
+  }else if(q.type==='master_mc'){
+    area.innerHTML=`
+    <div class="rounded-2xl p-5 mb-4" style="background:#fff">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="tag" style="background:#FFD700;color:#000;font-weight:bold">⭐ MASTER MODE</span>
+        <span class="text-xs font-600" style="color:var(--error)">HARD</span>
+      </div>
+      <p class="text-sm opacity-70 mb-3">📖 Read the definition and guess the word:</p>
+      <div class="rounded-xl p-4 mb-4" style="background:#f9f3e8;border-left:4px solid var(--accent)">
+        <p class="font-700 text-lg leading-relaxed" style="color:var(--dark)">${q.vocab.enDef}</p>
+      </div>
+      <p class="text-xs opacity-60">Choose the correct English word:</p>
+    </div>
+    <div class="space-y-3" id="optionsArea">
+      ${q.options.map((o,i)=>`<button class="option-btn" onclick="checkMC(${q.correctId},${o.id},this)">${String.fromCharCode(65+i)}. ${o.en}</button>`).join('')}
+    </div>`;
+  }
+  lucide.createIcons();
+}
+
+function checkMC(correctId,chosenId,btn){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>{b.style.pointerEvents='none';});
+  if(chosenId===correctId){
+    btn.classList.add('correct');score++;playDing();showConfetti();
+  }else{
+    btn.classList.add('wrong');playBuzz();
+    btns.forEach(b=>{if(b.textContent.includes(VOCAB.find(v=>v.id===correctId).en))b.classList.add('correct')});
+  }
+  showExplanation(gameQuestions[currentQ].vocab);showNextBtn();
+}
+
+function checkFIB(){
+  if(answered)return;
+  const inp=document.getElementById('fibInput');
+  const val=inp.value.trim().toLowerCase();
+  const q=gameQuestions[currentQ];
+  const correct=q.vocab.en.toLowerCase();
+  const alts=[correct];
+  if(q.vocab.alt)q.vocab.alt.split('/').forEach(a=>alts.push(a.trim().toLowerCase()));
+  answered=true;
+  if(alts.some(a=>val===a||val===a.replace(/\s+/g,' '))){
+    inp.style.borderColor='var(--success)';inp.style.background='#d4edda';score++;playDing();showConfetti();
+  }else{
+    inp.style.borderColor='var(--error)';inp.style.background='#f8d7da';playBuzz();
+    showToast(`Đáp án: ${q.vocab.en}`,'error');
+  }
+  showExplanation(q.vocab);showNextBtn();
+}
+
+function checkSentence(){
+  if(answered)return;
+  const inp=document.getElementById('fibInput');
+  const val=inp.value.trim().toLowerCase();
+  const q=gameQuestions[currentQ];
+  const word=q.vocab.en.toLowerCase().split('/')[0].trim();
+  const words=[word];
+  if(q.vocab.alt)q.vocab.alt.split('/').forEach(a=>words.push(a.trim().toLowerCase()));
+  answered=true;
+  if(words.some(w=>val===w||val.includes(w))){
+    inp.style.borderColor='var(--success)';inp.style.background='#d4edda';score++;playDing();showConfetti();
+  }else{
+    inp.style.borderColor='var(--error)';inp.style.background='#f8d7da';playBuzz();
+    showToast(`Đáp án: ${q.vocab.en}`,'error');
+  }
+  showExplanation(q.vocab);showNextBtn();
+}
+
+function showExplanation(v){
+  document.getElementById('explanationArea').innerHTML=`
+  <div class="rounded-2xl p-5 fade-in" style="background:#f0f8ff;border:2px solid #d0e8f0">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="font-700 text-lg" style="color:var(--accent)">📖 Deep Dive: Chi tiết từ vựng</span>
+      <button onclick="speakWord('${v.en.replace(/'/g,"\\'")}')" class="p-1 rounded-full" style="background:var(--pink)"><i data-lucide="volume-2" style="width:14px;height:14px"></i></button>
+    </div>
+    
+    <!-- WORD HEADER -->
+    <div class="p-4 rounded-xl mb-4" style="background:linear-gradient(135deg, #457B9D15 0%, #FFAFCC15 100%);border:1px solid var(--accent)">
+      <p class="font-800 text-xl" style="color:var(--dark)">${v.en}</p>
+      <p class="text-xs opacity-70 mt-1">${v.ipa} <span class="tag" style="background:var(--accent);color:#fff">${v.pos}</span></p>
+      ${v.alt?`<p class="text-xs opacity-60 mt-1">Also: ${v.alt}</p>`:''}
+    </div>
+    
+    <!-- MEANING -->
+    <div class="mb-4">
+      <p class="text-sm font-700 mb-2" style="color:#fff;background:var(--accent);padding:8px 12px;border-radius:8px;display:inline-block">🟢 MEANING (Nghĩa)</p>
+      <div class="mt-3 space-y-2">
+        <div class="p-3 rounded-lg" style="background:#fff;border-left:4px solid #28a745">
+          <p class="text-xs opacity-60 mb-1">🇻🇳 Tiếng Việt:</p>
+          <p class="font-600" style="color:var(--dark)">${v.vi}</p>
+        </div>
+        <div class="p-3 rounded-lg" style="background:#fff;border-left:4px solid #007bff">
+          <p class="text-xs opacity-60 mb-1">🇬🇧 English Definition:</p>
+          <p class="text-sm leading-relaxed">${v.enDef}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- COLLOCATIONS -->
+    <div class="mb-4 p-3 rounded-lg" style="background:#fff;border:1px solid #ffc107">
+      <p class="text-sm font-700 mb-2" style="color:#856404">🔗 COLLOCATIONS - Kết hợp từ thường gặp</p>
+      <div class="space-y-2">
+        ${v.collocations.map((col, i)=>`<div class="text-sm"><span style="background:var(--bg);padding:2px 8px;border-radius:6px;font-weight:600">${col}</span> <span style="opacity:70">${v.collocationVi[i]}</span></div>`).join('')}
+      </div>
+    </div>
+    
+    <!-- SYNONYMS -->
+    <div class="mb-4 p-3 rounded-lg" style="background:#fff;border:1px solid #17a2b8">
+      <p class="text-sm font-700 mb-2" style="color:#0c5460">↔️ SYNONYMS - Từ đồng nghĩa</p>
+      <div class="space-y-2">
+        ${v.synonyms.map((syn, i)=>`<div class="text-sm"><span style="background:#e2f4f8;padding:2px 8px;border-radius:6px;font-weight:600">${syn}</span> <span style="opacity:70">${v.synonymsVi[i]}</span></div>`).join('')}
+      </div>
+    </div>
+    
+    <!-- ANTONYMS -->
+    <div class="mb-4 p-3 rounded-lg" style="background:#fff;border:1px solid #dc3545">
+      <p class="text-sm font-700 mb-2" style="color:#721c24">⚖️ ANTONYMS - Từ trái nghĩa</p>
+      <div class="space-y-2">
+        ${v.antonyms.map((ant, i)=>`<div class="text-sm"><span style="background:#f8d7da;padding:2px 8px;border-radius:6px;font-weight:600">${ant}</span> <span style="opacity:70">${v.antonymsVi[i]}</span></div>`).join('')}
+      </div>
+    </div>
+    
+    <!-- WORD FAMILY -->
+    <div class="mb-4 p-3 rounded-lg" style="background:#fff;border:1px solid #6f42c1">
+      <p class="text-sm font-700 mb-2" style="color:#3e1f47">👨‍👩‍👧 WORD FAMILY - Họ từ liên quan</p>
+      <div class="space-y-2">
+        ${v.wordFamily.map((wf, i)=>`<div class="text-sm"><span style="background:#e7d4f5;padding:2px 8px;border-radius:6px;font-weight:600">${wf}</span> <span style="opacity:70">${v.wordFamilyVi[i]}</span></div>`).join('')}
+      </div>
+    </div>
+    
+    <!-- USAGE -->
+    ${v.usage?`<div class="mb-4 p-3 rounded-lg" style="background:#fff;border:1px solid var(--accent)">
+      <p class="text-sm font-700 mb-2" style="color:var(--dark)">💡 USAGE - Cách dùng</p>
+      <p class="text-sm p-2 rounded" style="background:#f9f9f9;color:var(--dark)">${v.usage}</p>
+    </div>`:''}
+    
+    <!-- EXAMPLE -->
+    <div class="p-4 rounded-lg" style="background:#fff3cd;border:2px solid #ffc107">
+      <p class="text-sm font-700 mb-3" style="color:#856404">📝 REAL-WORLD EXAMPLE - Ví dụ thực tế</p>
+      <div class="mb-3 p-3 rounded" style="background:#fff;border-left:4px solid #ffc107">
+        <p class="text-sm italic font-600 mb-2" style="color:var(--dark)">English:</p>
+        <p class="text-sm leading-relaxed">${v.example}</p>
+      </div>
+      <div class="p-3 rounded" style="background:#fff;border-left:4px solid var(--accent)">
+        <p class="text-sm italic font-600 mb-2" style="color:var(--dark)">Tiếng Việt:</p>
+        <p class="text-sm leading-relaxed" style="color:var(--accent)">${v.exampleVi}</p>
+      </div>
+    </div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function showNextBtn(){
+  document.getElementById('nextBtnArea').innerHTML=`<button onclick="nextQuestion()" class="btn-primary text-lg px-8">Câu tiếp theo →</button>`;
+}
+
+function nextQuestion(){currentQ++;answered=false;renderGame(document.getElementById('app'));}
+
+function renderResult(app){
+  const total=gameQuestions.length;const pct=Math.round(score/total*100);
+  const emoji=pct>=80?'🏆':pct>=60?'👍':pct>=40?'💪':'📖';
+  const msg=pct>=80?'Xuất sắc!':pct>=60?'Khá tốt!':pct>=40?'Cần ôn thêm!':'Hãy cố gắng hơn!';
+  app.innerHTML=`
+  <div class="flex flex-col items-center justify-center min-h-full p-6 fade-in">
+    <div class="text-6xl mb-4">${emoji}</div>
+    <h2 class="text-3xl font-800 mb-2" style="color:var(--dark)">${msg}</h2>
+    <p class="text-lg mb-6 opacity-70">Điểm: ${score}/${total} (${pct}%)</p>
+    <div class="w-full max-w-xs mb-6"><div class="progress-bar" style="height:12px"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+    <div class="space-y-3 w-full max-w-xs">
+      <button onclick="startGame(${currentGame})" class="btn-primary w-full">🔄 Chơi lại</button>
+      <button onclick="currentScreen='home';render()" class="btn-pink w-full">🏠 Về trang chủ</button>
+    </div>
+  </div>`;
+}
+
+// ===== VOCAB LIST =====
+function renderVocabList(app){
+  let searchTerm='';
+  app.innerHTML=`
+  <div class="min-h-full p-4 fade-in">
+    <div class="max-w-2xl mx-auto">
+      <div class="flex items-center gap-3 mb-4">
+        <button onclick="currentScreen='home';render()" class="p-2 rounded-lg" style="background:#fff"><i data-lucide="arrow-left" style="width:20px;height:20px"></i></button>
+        <h2 class="text-xl font-700" style="color:var(--dark)">📘 Từ vựng đầy đủ (${VOCAB.length} từ)</h2>
+      </div>
+      <input id="vocabSearch" class="input-field mb-4" placeholder="🔍 Tìm kiếm từ vựng..." oninput="filterVocab(this.value)">
+      <div id="vocabContainer">${renderVocabCards(VOCAB)}</div>
+    </div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function renderVocabCards(list){
+  return list.map(v=>`
+  <div class="vocab-card card-hover fade-in">
+    <div class="flex items-start justify-between mb-2">
+      <div>
+        <span class="font-700 text-lg" style="color:var(--dark)">${v.en}</span>
+        ${v.alt?`<span class="text-xs opacity-50 ml-2">/ ${v.alt}</span>`:''}
+        <span class="ml-2 text-sm opacity-60">${v.ipa}</span>
+        <span class="tag ml-2" style="background:var(--bg)">${v.pos}</span>
+      </div>
+      <button onclick="speakWord('${v.en.replace(/'/g,"\\'")}')" class="p-1 rounded-full flex-shrink-0" style="background:var(--pink)"><i data-lucide="volume-2" style="width:16px;height:16px"></i></button>
+    </div>
+    <p class="font-600 mb-1" style="color:var(--accent)">${v.vi}</p>
+    <p class="text-sm opacity-70 mb-2">${v.enDef}</p>
+    ${v.usage?`<p class="text-sm mb-2" style="color:var(--accent)">💡 ${v.usage}</p>`:''}
+    <details class="mt-2">
+      <summary class="text-sm font-600 cursor-pointer" style="color:var(--accent)">Xem chi tiết ▾</summary>
+      <div class="mt-2 space-y-1 text-sm pl-2" style="border-left:2px solid var(--bg)">
+        <p><strong>Collocations:</strong> ${v.collocations.join(', ')}</p>
+        <p><strong>Synonyms:</strong> ${v.synonyms.join(', ')}</p>
+        <p><strong>Antonyms:</strong> ${v.antonyms.join(', ')}</p>
+        <p><strong>Word family:</strong> ${v.wordFamily.join(', ')}</p>
+        <p class="mt-1 p-2 rounded-lg" style="background:#f8f9fa"><strong>Example:</strong> ${v.example}</p>
+      </div>
+    </details>
+  </div>`).join('');
+}
+
+function filterVocab(term){
+  const t=term.toLowerCase();
+  const filtered=VOCAB.filter(v=>v.en.toLowerCase().includes(t)||v.vi.toLowerCase().includes(t)||v.enDef.toLowerCase().includes(t));
+  document.getElementById('vocabContainer').innerHTML=renderVocabCards(filtered);
+  lucide.createIcons();
+}
+
+// ===== ELEMENT SDK FALLBACK =====
+// Handle cases where Element SDK is not available (local file execution)
+if(!window.elementSdk){
+  window.elementSdk = {
+    config: { ...defaultConfig },
+    init: function(element){ console.log("ℹ️ Element SDK not available (running locally)"); },
+    setConfig: function(cfg){ Object.assign(this.config, cfg); }
+  };
+}
+
+render();
+
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f012828112217b1',t:'MTc3NjgyNDUwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
